@@ -9,6 +9,37 @@
 
 #define MAX_PATH 512
 
+// soal a
+void setupClues() {
+    
+    struct stat st = {0};
+    if (stat("Clues", &st) == -1) {
+
+        pid_t child1 = fork();
+        if (child1 == 0) {
+            execlp("curl", "curl", "-L", "-o", "Clues.zip",
+                   "https://drive.usercontent.google.com/u/0/uc?id=1xFn1OBJUuSdnApDseEczKhtNzyGekauK&export=download",
+                   NULL);
+            exit(EXIT_FAILURE);
+        }
+        wait(NULL);
+
+        pid_t child2 = fork();
+        if (child2 == 0) {
+            execlp("unzip", "unzip", "-o", "Clues.zip", NULL); 
+            exit(EXIT_FAILURE);
+        }
+        wait(NULL);
+
+        pid_t child3 = fork();
+        if (child3 == 0) {
+            execlp("rm", "rm", "Clues.zip", NULL);
+            exit(EXIT_FAILURE);
+        }
+        wait(NULL);
+    }
+}
+
 int isValidFileName(const char *filename) {
     char name[256];
     strncpy(name, filename, sizeof(name) - 1);
@@ -56,36 +87,7 @@ void filterFiles(const char *sourceFolder) {
 
     closedir(dir);
 }
-// soal a
-void setupClues() {
-    
-    struct stat st = {0};
-    if (stat("Clues", &st) == -1) {
 
-        pid_t child1 = fork();
-        if (child1 == 0) {
-            execlp("curl", "curl", "-L", "-o", "Clues.zip",
-                   "https://drive.usercontent.google.com/u/0/uc?id=1xFn1OBJUuSdnApDseEczKhtNzyGekauK&export=download",
-                   NULL);
-            exit(EXIT_FAILURE);
-        }
-        wait(NULL);
-
-        pid_t child2 = fork();
-        if (child2 == 0) {
-            execlp("unzip", "unzip", "-o", "Clues.zip", NULL); 
-            exit(EXIT_FAILURE);
-        }
-        wait(NULL);
-
-        pid_t child3 = fork();
-        if (child3 == 0) {
-            execlp("rm", "rm", "Clues.zip", NULL);
-            exit(EXIT_FAILURE);
-        }
-        wait(NULL);
-    }
-}
 
 int cmpstr(const void *a, const void *b) {
     return strcmp(*(char **)a, *(char **)b);
