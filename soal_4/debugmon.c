@@ -7,6 +7,19 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+void write_log(const char *process_name, const char *status) {
+    FILE *log = fopen("debugmon.log", "a");
+    if (!log) return;
+
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char timestamp[50];
+    strftime(timestamp, sizeof(timestamp), "[%d:%m:%Y]-[%H:%M:%S]", t);
+
+    fprintf(log, "%s_%s_STATUS(%s)\n", timestamp, process_name, status);
+    fclose(log);
+}
+
 void printDebugmonArt()
 {
     printf("==== ⚡️DEBUGMON ⚡️====\n");
@@ -15,14 +28,6 @@ void printDebugmonArt()
     printf("    /|   |\\  \n");
     printf("   /_|___|_\\ \n");
     printf("     /   \\ \n");
-}
-
-void write_log(const char *process_name, const char *status) {
-    time_t now = time(NULL);
-    struct tm *t = localtime(&now);
-    char timestamp[50];
-    strftime(timestamp, sizeof(timestamp), "[%d:%m:%Y]-[%H:%M:%S]", t);
-    printf("%s_%s_STATUS(%s)\n", timestamp, process_name, status);
 }
 
 void a_processes(const char *user)
