@@ -403,7 +403,7 @@ Deletes the zip file afterwards.
 
 Output: 
 
-![output_example](assets/temp.txt)
+![a](assets/soal_2/starterkit.png)
 
 
 
@@ -531,7 +531,7 @@ Creates and writes the daemon PID to decrypt.pid for later reference (--shutdown
 
 Output: 
 
-![output_example](assets/temp.txt)
+![b](assets/soal_2/decrypt.png))
 
 
 ### Sub Soal c
@@ -571,7 +571,7 @@ Logs the file move operation into activity.log.
 
 Output: 
 
-![output_example](assets/temp.txt)
+![c1](assets/soal_2/quarantine.png)
 
 
 Command :
@@ -608,7 +608,7 @@ Logs the restoration of each file.
 
 Output: 
 
-![output_example](assets/temp.txt)
+![c2](assets/soal_2/return.png)
 
 
 ### Sub Soal d
@@ -646,7 +646,7 @@ Logs each deletion.
 
 Output: 
 
-![output_example](assets/temp.txt)
+![d](assets/soal_2/eradicate.png)
 
 
 ### Sub Soal e
@@ -688,7 +688,7 @@ On success, it prints a success message, logs the shutdown, and deletes the decr
 
 Output: 
 
-![output_example](assets/temp.txt)
+![e](assets/soal_2/shutdown.png)
 
 
 ### Sub Soal f
@@ -712,7 +712,7 @@ Prints "Error.", Shows the list of valid command-line options, Then it exits the
 
 Output: 
 
-![output_example](assets/temp.txt)
+![](assets/soal_2/error.png)
 
 
 ### Sub Soal g
@@ -740,7 +740,7 @@ Used to track operations like moving, returning, deleting files, or daemon event
 
 Output: 
 
-![output_example](assets/temp.txt)
+![f](assets/soal_2/log.png)
 
 
 ### Main Function
