@@ -65,7 +65,7 @@ This ensures the initial required data is prepared before any further tasks run.
 
 Output: 
 
-![output_example](assets/temp.txt)
+![a](assets/soal_1/action.png)
 
 ## Sub Soal b
 
@@ -140,7 +140,7 @@ The goal is to clean the dataset and keep only useful clue files.
 
 Output: 
 
-![output_example](assets/temp.txt)
+![b](assets/soal_1/m-filter.png)
 
 
 ### Sub Soal c
@@ -233,7 +233,7 @@ If one group is larger, the remaining files are written at the end in sorted ord
 
 Output: 
 
-![output_example](assets/temp.txt)
+![c](assets/soal_1/m-combine.png)
 
 
 ## Sub Soal d
@@ -282,7 +282,7 @@ This is used to reveal the original content of the clues.
 
 Output: 
 
-![output_example](assets/temp.txt)
+![d](assets/soal_1/m-decode.png)
 
 
 ### Main Function 
@@ -328,7 +328,6 @@ If specific arguments are passed:
 - "Combine": merges valid files into a single file (Task C)
 - "Decode": decrypts the combined file using ROT13.
 If the argument doesn't match any known option, it prints usage instructions. (Error Handling)
-
 
 
 
