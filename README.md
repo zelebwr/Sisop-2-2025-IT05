@@ -138,6 +138,16 @@ it is copied to a new "Filtered" folder using fork + exec (cp).
 Invalid files (non-matching names) are deleted using fork + exec (rm).
 The goal is to clean the dataset and keep only useful clue files.
 
+Output: 
+
+![output_example](assets/temp.txt)
+
+
+### Sub Soal c
+Command:
+```bash
+./action -m Combine
+```
 
 ```bash
 int cmpstr(const void *a, const void *b) {
@@ -149,12 +159,6 @@ int cmpstr(const void *a, const void *b) {
 Used in qsort() to sort an array of file names in ascending (alphabetical) order.
 This ensures consistent ordering when combining files in the next step.
 
-
-### Sub Soal c
-Command:
-```bash
-./action -m Combine
-```
 
 Code:
 ```bash
@@ -227,6 +231,9 @@ for (int i = 0; i < na || i < nh; i++) {
 Then it writes them into the combined file in alternating order (number-letter-number...).
 If one group is larger, the remaining files are written at the end in sorted order.
 
+Output: 
+
+![output_example](assets/temp.txt)
 
 
 ## Sub Soal d
@@ -273,6 +280,10 @@ Applies the ROT13 cipher to each character in Combined.txt and writes the result
 ROT13 shifts alphabet characters by 13 positions (A ↔ N, B ↔ O, etc.).
 This is used to reveal the original content of the clues.
 
+Output: 
+
+![output_example](assets/temp.txt)
+
 
 ### Main Function 
 ```bash
@@ -316,40 +327,494 @@ If specific arguments are passed:
 - "Filter": triggers the filtering process (Task B)
 - "Combine": merges valid files into a single file (Task C)
 - "Decode": decrypts the combined file using ROT13.
-If the argument doesn't match any known option, it prints usage instructions.
-
-Block of Code that is running:
+If the argument doesn't match any known option, it prints usage instructions. (Error Handling)
 
 
-The line above means that you need to figure out the whole thing on your own. So, good luck on whoever is trying to figure out what that line is for. For whoever that's trying to find the explanation here, you are out of luck, 'cuz this README.md is absolutely of no use for that reason.
+
 
 # Soal_2
 
-## Sub Soal
-
-Command: 
+```bash
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <signal.h>
+#include <time.h>
+#include <ctype.h>
+#include <errno.h>
+```
+this is the c code library for soal_2
 
 ```bash
-command line to activate the script
+
+#define SIZE 4096
+pid_t decrypt_pid = -1;
 ```
+#### Explanation:
+Defines SIZE as 4096 for buffer size and declares a global PID for the decrypt daemon process
+
+
+## Sub Soal a
+
+Command: 
+```bash
+ ./starterkit
+```
+
+Code:
+```bash
+void setup() {
+    pid_t child1, child2, child3;
+
+    mkdir("starter_kit", 0777);
+
+    child1 = fork();
+    if (child1 == 0) {
+        execlp("curl", "curl", "-L", "-o", "starter_kit.zip",
+               "https://drive.usercontent.google.com/u/0/uc?id=1_5GxIGfQr3mNKuavJbte_AoRkEQLXSKS&export=download", NULL);
+        exit(EXIT_FAILURE);
+    }
+    wait(NULL);
+
+    child2 = fork();
+    if (child2 == 0) {
+        execlp("unzip", "unzip", "-o", "starter_kit.zip", "-d", "starter_kit", NULL);
+        exit(EXIT_FAILURE);
+    }
+    wait(NULL);
+
+    child3 = fork();
+    if (child3 == 0) {
+        execlp("rm", "rm", "starter_kit.zip", NULL);
+        exit(EXIT_FAILURE);
+    }
+    wait(NULL);
+}
+```
+#### Explanation:
+Automatically executed if no arguments are passed.
+Downloads the starter_kit.zip using curl.
+Extracts the contents into a 'starter_kit' folder using unzip.
+Deletes the zip file afterwards.
 
 Output: 
 
 ![output_example](assets/temp.txt)
 
-Block of Code that is running:
 
+
+### Sub Soal b
+
+Command :
 ```bash
-block of code
+./starterkit --decrypt
+```
+
+Code:
+```bash
+int is_base64(const char *str) {
+    int len = strlen(str); 
+    if (len % 4 != 0) return 0; 
+
+    for (int i = 0; i < len; i++) {
+        char c = str[i];
+        
+        if (!((c >= 'A' && c <= 'Z') || 
+              (c >= 'a' && c <= 'z') || 
+              (c >= '0' && c <= '9') || 
+              c == '+' ||               
+              c == '/' ||               
+              c == '='))                
+            return 0;
+    }
+    return 1; 
+}
+```
+#### Explanation:
+checks if the file name is base64
+
+
+Code:
+```bash
+void decrypt() {
+    pid_t pid, sid;
+    pid = fork();
+
+    if (pid < 0) exit(EXIT_FAILURE);
+    if (pid > 0) {
+        FILE *pidFile = fopen("decrypt.pid", "w");
+        if (pidFile != NULL) {
+            fprintf(pidFile, "%d", pid);
+            fclose(pidFile);
+        }
+        exit(EXIT_SUCCESS);
+    }
+
+    umask(0);
+    sid = setsid();
+    if (sid < 0) exit(EXIT_FAILURE);
+    if ((chdir(".")) < 0) exit(EXIT_FAILURE);
+
+    mkdir("quarantine", 0777);
+
+    while (1) {
+        DIR *dir;
+        struct dirent *entry;
+
+        //Cek di starter_kit → pindah & decrypt
+        dir = opendir("starter_kit");
+        if (dir != NULL) {
+            while ((entry = readdir(dir)) != NULL) {
+                if (entry->d_type == DT_REG && is_base64(entry->d_name)) {
+                    char src_path[SIZE], dst_path[SIZE], decoded[SIZE];
+
+                    snprintf(src_path, sizeof(src_path), "starter_kit/%s", entry->d_name);
+
+                    // Decode base64
+                    FILE *fp;
+                    char cmd[SIZE];
+                    snprintf(cmd, sizeof(cmd), "echo %s | base64 -d", entry->d_name);
+                    fp = popen(cmd, "r");
+                    if (fp == NULL) continue;
+                    fgets(decoded, sizeof(decoded), fp);
+                    decoded[strcspn(decoded, "\n")] = '\0';
+                    pclose(fp);
+
+                    // Pindah dan rename langsung ke quarantine
+                    snprintf(dst_path, sizeof(dst_path), "quarantine/%s", decoded);
+                    rename(src_path, dst_path);
+                }
+            }
+            closedir(dir);
+        }
+        //Cek di quarantine → decrypt jika masih base64
+        dir = opendir("quarantine");
+        if (dir != NULL) {
+            while ((entry = readdir(dir)) != NULL) {
+                if (entry->d_type == DT_REG && is_base64(entry->d_name)) {
+                    char oldpath[SIZE], newname[SIZE], newpath[SIZE];
+
+                    snprintf(oldpath, sizeof(oldpath), "quarantine/%s", entry->d_name);
+
+                    // Decode base64
+                    FILE *fp;
+                    char cmd[SIZE];
+                    snprintf(cmd, sizeof(cmd), "echo %s | base64 -d", entry->d_name);
+                    fp = popen(cmd, "r");
+                    if (fp == NULL) continue;
+                    fgets(newname, sizeof(newname), fp);
+                    newname[strcspn(newname, "\n")] = '\0';
+                    pclose(fp);
+
+                    snprintf(newpath, sizeof(newpath), "quarantine/%s", newname);
+                    rename(oldpath, newpath);
+                }
+            }
+            closedir(dir);
+        }
+
+        sleep(5);
+    }
+}
 ```
 
 #### Explanation:
+Runs as a daemon in the background.
+Periodically (every 5 seconds):
+Scans starter_kit/ for Base64-encoded filenames, decodes them, and moves them to quarantine/ with decoded names.
+Re-checks quarantine/ for any missed Base64 names and renames them properly.
+Creates and writes the daemon PID to decrypt.pid for later reference (--shutdown).
 
-```bash 
-block of code
+Output: 
+
+![output_example](assets/temp.txt)
+
+
+### Sub Soal c
+
+Command :
+```bash
+./starterkit --quarantine
 ```
 
-The line above means that you need to figure out the whole thing on your own. So, good luck on whoever is trying to figure out what that line is for. For whoever that's trying to find the explanation here, you are out of luck, 'cuz this README.md is absolutely of no use for that reason.
+
+Code:
+```bash 
+void quarantineFiles() {
+    DIR *dir = opendir("starter_kit");
+    struct dirent *entry;
+
+    if (dir == NULL) return;
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            char oldpath[SIZE], newpath[SIZE], buffer[SIZE];
+            snprintf(oldpath, sizeof(oldpath), "starter_kit/%s", entry->d_name);
+            snprintf(newpath, sizeof(newpath), "quarantine/%s", entry->d_name);
+            rename(oldpath, newpath);
+
+            snprintf(buffer, sizeof(buffer), "%s - Successfully moved to quarantine directory.", entry->d_name);
+            Log(buffer);
+        }
+    }
+    closedir(dir);
+}
+
+```
+#### Explanation:
+Moves all regular files from starter_kit/ to quarantine/.
+Logs the file move operation into activity.log.
+
+Output: 
+
+![output_example](assets/temp.txt)
+
+
+Command :
+```bash
+./starterkit --return
+```
+
+
+Code:
+```bash
+void returnFiles() {
+    DIR *dir = opendir("quarantine");
+    struct dirent *entry;
+
+    if (dir == NULL) return;
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            char oldpath[SIZE], newpath[SIZE], buffer[SIZE];
+            snprintf(oldpath, sizeof(oldpath), "quarantine/%s", entry->d_name);
+            snprintf(newpath, sizeof(newpath), "starter_kit/%s", entry->d_name);
+            rename(oldpath, newpath);
+
+            snprintf(buffer, sizeof(buffer), "%s - Successfully returned to starter kit directory.", entry->d_name);
+            Log(buffer);
+        }
+    }
+    closedir(dir);
+}
+```
+#### Explanation:
+Moves files back from quarantine/ to starter_kit/.
+Logs the restoration of each file.
+
+Output: 
+
+![output_example](assets/temp.txt)
+
+
+### Sub Soal d
+
+Command :
+```bash
+./starterkit --eradicate
+```
+
+
+Code:
+```bash
+void eradicate() {
+    DIR *dir = opendir("quarantine");
+    struct dirent *entry;
+
+    if (dir == NULL) return;
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            char filepath[SIZE], buffer[SIZE];
+            snprintf(filepath, sizeof(filepath), "quarantine/%s", entry->d_name);
+            remove(filepath);
+
+            snprintf(buffer, sizeof(buffer), "%s - Successfully deleted.", entry->d_name);
+            Log(buffer);
+        }
+    }
+    closedir(dir);
+}
+```
+#### Explanation:
+Permanently deletes all regular files inside the quarantine/ folder.
+Logs each deletion.
+
+Output: 
+
+![output_example](assets/temp.txt)
+
+
+### Sub Soal e
+
+Command :
+```bash
+./starterkit --shutdown
+```
+
+
+Code:
+```bash
+        else if (strcmp(argv[1], "--shutdown") == 0) {
+        FILE *pid_file = fopen("decrypt.pid", "r");
+            if (pid_file == NULL) {
+                printf("Decrypt daemon not running\n");
+                exit(EXIT_FAILURE);
+            }
+        
+            fscanf(pid_file, "%d", &decrypt_pid);
+            fclose(pid_file);
+        
+            if (kill(decrypt_pid, SIGTERM) == 0) {
+                printf("Decrypt daemon shutdown success\n");
+                char buffer[SIZE];
+                snprintf(buffer, sizeof(buffer), "Successfully shut off decryption process with PID %d.", decrypt_pid);
+                Log(buffer); // log tambahan untuk shutdown
+            
+                remove("decrypt.pid"); // hapus file PID
+            }
+```
+#### Explanation:
+this code is in main function
+The --shutdown block is used to terminate the decrypt daemon process. It works by:
+Opening the decrypt.pid file to read the daemon's PID.
+If the file doesn’t exist, it means the daemon isn’t running.
+If it exists, it sends a SIGTERM signal to stop the daemon.
+On success, it prints a success message, logs the shutdown, and deletes the decrypt.pid file.
+
+Output: 
+
+![output_example](assets/temp.txt)
+
+
+### Sub Soal f
+
+#### Error Handling
+
+Code:
+```bash
+else {
+            printf("Error.\n");
+            printf("Use:\n");
+            printf("  --decrypt\n  --quarantine\n  --return\n  --eradicate\n  --shutdown\n");
+            exit(EXIT_FAILURE);
+        }
+    } 
+```
+#### Explanation:
+This else block handles invalid or missing arguments.
+If the user runs the program with an unrecognized flag, it:
+Prints "Error.", Shows the list of valid command-line options, Then it exits the program with failure status.
+
+Output: 
+
+![output_example](assets/temp.txt)
+
+
+### Sub Soal g
+
+Code:
+```bash
+void Log(const char* message) {
+    FILE *logFile = fopen("activity.log", "a"); //buat file dgn mode append
+    if (logFile == NULL) return;
+
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    fprintf(logFile, "[%02d-%02d-%d][%02d:%02d:%02d] - %s\n",
+        t->tm_mday, t->tm_mon+1, t->tm_year+1900,
+        t->tm_hour, t->tm_min, t->tm_sec,
+        message);
+
+    fclose(logFile);
+}
+```
+#### Explanation:
+Appends messages to an activity.log file with a timestamp.
+Used to track operations like moving, returning, deleting files, or daemon events.
+
+Output: 
+
+![output_example](assets/temp.txt)
+
+
+### Main Function
+
+```bash
+int main(int argc, char *argv[]) {
+    if (argc > 1) {
+        if (strcmp(argv[1], "--decrypt") == 0) {
+            decrypt_pid = fork();
+            if (decrypt_pid == 0) {
+                decrypt();
+                exit(0);
+            } else {
+                printf("Decrypt Process Running, PID : %d\n", decrypt_pid);
+
+                char buffer[SIZE];
+                snprintf(buffer, sizeof(buffer), "Successfully started decryption process with PID %d.", decrypt_pid);
+                Log(buffer);
+                
+                wait(NULL);
+            }
+        } else if (strcmp(argv[1], "--shutdown") == 0) {
+            FILE *pid_file = fopen("decrypt.pid", "r");
+            if (pid_file == NULL) {
+                printf("Decrypt daemon not running\n");
+                exit(EXIT_FAILURE);
+            }
+        
+            fscanf(pid_file, "%d", &decrypt_pid);
+            fclose(pid_file);
+        
+            if (kill(decrypt_pid, SIGTERM) == 0) {
+                printf("Decrypt daemon shutdown success\n");
+                char buffer[SIZE];
+                snprintf(buffer, sizeof(buffer), "Successfully shut off decryption process with PID %d.", decrypt_pid);
+                Log(buffer); // log tambahan untuk shutdown
+            
+                remove("decrypt.pid"); // hapus file PID
+            } else {
+                printf("Failed to shutdown decrypt daemon\n");
+            }            
+        } else if (strcmp(argv[1], "--quarantine") == 0) {
+            quarantineFiles();
+        } else if (strcmp(argv[1], "--return") == 0) {
+            returnFiles();
+        } else if (strcmp(argv[1], "--eradicate") == 0) {
+            eradicate();
+        } else {
+            printf("Error.\n");
+            printf("Use:\n");
+            printf("  --decrypt\n  --quarantine\n  --return\n  --eradicate\n  --shutdown\n");
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        setup();
+    }
+
+    return 0;
+}
+```
+#### Explanation:
+Handles command-line arguments to trigger specific features:
+--decrypt: Launches the decrypt daemon.
+--shutdown: Stops the daemon using the PID stored in decrypt.pid.
+--quarantine: Manually moves all files from starter_kit/ to quarantine/.
+--return: Returns all files from quarantine/ to starter_kit/.
+--eradicate: Deletes all files inside quarantine/.
+If no arguments are given, it runs the setup() function automatically.
+
+### Revision
+#### Sub soal b
+ Before revision, in sub-question **b** (**decrypt** function), when a new Base64-encoded file was added to the `quarantine` folder, the file was not immediately decoded. Therefore, code was added to check the `quarantine` folder — if there are any files that haven't been decoded yet, they will be decoded.
+
 
 # Soal_3
 
