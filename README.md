@@ -1,7 +1,5 @@
 # Sisop-2-2025-IT05
 
-below is the template
-
 # Soal_1
 
 Library:
