@@ -14,11 +14,11 @@
 #include <errno.h>
 
 #define SIZE 4096
-pid_t decrypt_pid = -1;  
+pid_t decrypt_pid = -1;  //deklarasi awal pidnya blm ada proses
 
 //membuat activity.log
 void Log(const char* message) {
-    FILE *logFile = fopen("activity.log", "a");
+    FILE *logFile = fopen("activity.log", "a"); //buat file dgn mode append
     if (logFile == NULL) return;
 
     time_t now = time(NULL);
@@ -86,7 +86,6 @@ void decrypt() {
 
     if (pid < 0) exit(EXIT_FAILURE);
     if (pid > 0) {
-        // Simpan PID ke file
         FILE *pidFile = fopen("decrypt.pid", "w");
         if (pidFile != NULL) {
             fprintf(pidFile, "%d", pid);
@@ -98,47 +97,71 @@ void decrypt() {
     umask(0);
     sid = setsid();
     if (sid < 0) exit(EXIT_FAILURE);
-
     if ((chdir(".")) < 0) exit(EXIT_FAILURE);
 
     mkdir("quarantine", 0777);
 
     while (1) {
-        DIR *dir = opendir("starter_kit");
+        DIR *dir;
         struct dirent *entry;
 
-        if (dir == NULL) {
-            sleep(5);
-            continue;
-        }
+        // Cek di starter_kit → pindah & decrypt
+        dir = opendir("starter_kit");
+        if (dir != NULL) {
+            while ((entry = readdir(dir)) != NULL) {
+                if (entry->d_type == DT_REG && is_base64(entry->d_name)) {
+                    char src_path[SIZE], dst_path[SIZE], decoded[SIZE];
 
-        while ((entry = readdir(dir)) != NULL) {
-            if (entry->d_type == DT_REG && is_base64(entry->d_name)) {
-                char oldpath[SIZE], decoded[SIZE], newpath[SIZE];
+                    snprintf(src_path, sizeof(src_path), "starter_kit/%s", entry->d_name);
 
-                snprintf(oldpath, sizeof(oldpath), "starter_kit/%s", entry->d_name);
+                    // Decode base64
+                    FILE *fp;
+                    char cmd[SIZE];
+                    snprintf(cmd, sizeof(cmd), "echo %s | base64 -d", entry->d_name);
+                    fp = popen(cmd, "r");
+                    if (fp == NULL) continue;
+                    fgets(decoded, sizeof(decoded), fp);
+                    decoded[strcspn(decoded, "\n")] = '\0';
+                    pclose(fp);
 
-                // decode pakai command linux
-                FILE *fp;
-                char cmd[SIZE];
-                snprintf(cmd, sizeof(cmd), "echo %s | base64 -d", entry->d_name);
-                fp = popen(cmd, "r");
-
-                if (fp == NULL) continue;
-
-                fgets(decoded, sizeof(decoded), fp);
-                decoded[strcspn(decoded, "\n")] = '\0'; // hapus newline
-                pclose(fp);
-
-                snprintf(newpath, sizeof(newpath), "quarantine/%s", decoded);
-                rename(oldpath, newpath);
+                    // Pindah dan rename langsung ke quarantine
+                    snprintf(dst_path, sizeof(dst_path), "quarantine/%s", decoded);
+                    rename(src_path, dst_path);
+                }
             }
+            closedir(dir);
         }
 
-        closedir(dir);
+        //Cek di quarantine → decrypt jika masih base64
+        dir = opendir("quarantine");
+        if (dir != NULL) {
+            while ((entry = readdir(dir)) != NULL) {
+                if (entry->d_type == DT_REG && is_base64(entry->d_name)) {
+                    char oldpath[SIZE], newname[SIZE], newpath[SIZE];
+
+                    snprintf(oldpath, sizeof(oldpath), "quarantine/%s", entry->d_name);
+
+                    // Decode base64
+                    FILE *fp;
+                    char cmd[SIZE];
+                    snprintf(cmd, sizeof(cmd), "echo %s | base64 -d", entry->d_name);
+                    fp = popen(cmd, "r");
+                    if (fp == NULL) continue;
+                    fgets(newname, sizeof(newname), fp);
+                    newname[strcspn(newname, "\n")] = '\0';
+                    pclose(fp);
+
+                    snprintf(newpath, sizeof(newpath), "quarantine/%s", newname);
+                    rename(oldpath, newpath);
+                }
+            }
+            closedir(dir);
+        }
+
         sleep(5);
     }
 }
+
 
 //soal c
 void quarantineFiles() {
