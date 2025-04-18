@@ -1946,6 +1946,7 @@ Output:
 ## Revision
 
 Added the write log function for soal c. It became like this:
+
 Code:
 ```c 
 void c_stop(const char *user) {
