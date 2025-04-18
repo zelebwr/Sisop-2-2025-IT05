@@ -876,7 +876,11 @@ int main(int argc, char *argv[]) {
 
 Output: 
 
-![output_example](assets/temp.txt)
+![it's a beauiful day init?!1](assets/soal_3/ps%20aux.png)
+
+![it's a beauiful day init?!2](assets/soal_3/ps%20axjf.png)
+
+![it's a beauiful day init?!3](assets/soal_3/pstree.png)
 
 #### Explanation
 
@@ -984,7 +988,11 @@ int main(int argc, char *argv[]) {
 
 Output: 
 
-![output_example](assets/temp.txt)
+![Oops, your content is encrypted1](assets/soal_3/cat_before.png)
+
+![Oops, your content is encrypted2](assets/soal_3/after%20cat%20first.png)
+
+![Oops, your content is encrypted3](assets/soal_3/after%20cat%20second.png)
 
 #### Explanation
 
@@ -1198,7 +1206,9 @@ int main(int argc, char *argv[]) {
 
 Output: 
 
-![output_example](assets/temp.txt)
+![spread malware before](assets/soal_3/before_ll.png)
+
+![spread malware after](assets/soal_3/ll%20malware%20copy.png)
 
 #### Explanation
 
@@ -1366,8 +1376,15 @@ Block of Code that is running:
 ```
 Output: 
 
-![output_example](assets/temp.txt)
+![binary content before](assets/soal_3/cat_before.png)
 
+![binary content after](assets/soal_3/after%20cat%20first.png)
+
+![binary content after2](assets/soal_3/after%20cat%20second.png)
+
+![malwareCopy before](assets/soal_3/before_ll.png)
+
+![malwareCopy after](assets/soal_3/ll%20malware%20copy.png)
 
 #### Explanation
 
@@ -1464,7 +1481,11 @@ while (1) {
 
 Output: 
 
-![output_example](assets/temp.txt)
+![forkBombed](assets/soal_3/ps%20aux.png)
+
+![forkBombed2](assets/soal_3/ps%20axjf.png)
+
+![forkBombed3](assets/soal_3/pstree.png)
 
 #### Explanation
 
@@ -1527,7 +1548,7 @@ The maximum amount of miner child that is made by the fork bomb should be the am
 * `set_process_name(process_name);` is to set the process name as `process_name`. 
 * `miner_process(i);` here is to call the `miner_process()` function with the argument of the miner's id process.
 
-## Sub Soal f & g & h
+## Sub Soal f & g
 
 #### Objective 
 
@@ -1583,7 +1604,9 @@ void start_rodok() {
 
 Output: 
 
-![output_example](assets/temp.txt)
+![minerlog](assets/soal_3/cat%20minerlog.png)
+
+![minerProcesses](assets/soal_3/pstree.png)
 
 #### Explanation
 
@@ -1667,7 +1690,7 @@ Command:
 command line to activate the script
 ```
 
-Output: 
+Output:
 
 ![output_example](assets/temp.txt)
 
