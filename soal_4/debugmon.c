@@ -22,11 +22,11 @@ void write_log(const char *process_name, const char *status) {
 
 void printDebugmonArt()
 {
-    printf("==== ⚡️DEBUGMON ⚡️====\n");
+    printf("==== ⚡DEBUGMON ⚡====\n");
     printf("      (⌐■_■)\n");
     printf("   ⌒(￣▽￣)⌒\n");
     printf("    /|   |\\  \n");
-    printf("   /_|___|_\\ \n");
+    printf("   /||_\\ \n");
     printf("     /   \\ \n");
 }
 
@@ -88,7 +88,7 @@ void b_start(const char *user)
 
 void c_stop(const char *user) {
     printf("\n>>Menghentikan pengawasan untuk user '%s'...\n", user);
-
+    write_log("STOP", "STOP");
     char cmd[256];
     sprintf(cmd, "pgrep -f 'debugmon daemon %s'", user);
     
