@@ -1755,7 +1755,7 @@ The function displays a list of processes running under a specific user. It uses
 
 Output: 
 
-![a]()
+![a](assets/soal_4/list.jpeg)
 
 ## Sub Soal b
 
@@ -1816,7 +1816,7 @@ The function starts a background daemon to monitor all running processes of a sp
 
 Output: 
 
-![a]()
+![a](assets/soal_4/daemon.jpeg)
 
 ## Sub Soal c
 
@@ -1855,7 +1855,7 @@ The function stops the running daemon that monitors a specific user by finding i
 
 Output: 
 
-![a]()
+![a](assets/soal_4/stop.jpeg)
 
 ## Sub Soal d
 
@@ -1908,8 +1908,7 @@ void d_fail(const char *user) {
 The function forcefully terminates all processes of a specific user, logs each termination, and then locks the user account. It's used to completely block a user from running any further processes.
 
 Output: 
-
-![a]()
+There is no output for this choice because the program will be automatically closed.
 
 ## Sub Soal e
 
@@ -1942,4 +1941,33 @@ The function restores access for a previously locked user by unlocking their acc
 
 Output: 
 
-![a]()
+![a](assets/soal_4/revert.jpeg)
+
+## Revision
+
+Added the write log function for soal c. It became like this:
+Code:
+```c 
+void c_stop(const char *user) {
+    printf("\n>>Menghentikan pengawasan untuk user '%s'...\n", user);
+    write_log("STOP", "STOP");
+    char cmd[256];
+    sprintf(cmd, "pgrep -f 'debugmon daemon %s'", user);
+    
+    FILE *fp = popen(cmd, "r");
+    if (fp) {
+        char pid_str[16];
+        if (fgets(pid_str, sizeof(pid_str), fp)) {
+            pid_t pid = atoi(pid_str);
+            if (kill(pid, SIGTERM) == 0) {
+                printf("Yay! Daemon (PID: %d) berhasil dihentikan.\n", pid);
+            } else {
+                perror("Oh No! Gagal menghentikan daemon");
+            }
+        } else {
+            printf("Oh No! Tidak ada daemon yang aktif untuk user '%s'.\n", user);
+        }
+        pclose(fp);
+    }
+}
+```
