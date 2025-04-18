@@ -1682,28 +1682,264 @@ The loop is made to be iterating 32 times because each hexadecimal will contain 
 
 # Soal_4
 
-## Sub Soal
+Library:
+```#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <signal.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+```
+this is the c code library for soal_4
+
+```c
+void printDebugmonArt()
+{
+    printf("==== ⚡️DEBUGMON ⚡️====\n");
+    printf("      (⌐■_■)\n");
+    printf("   ⌒(￣▽￣)⌒\n");
+    printf("    /|   |\\  \n");
+    printf("   /_|___|_\\ \n");
+    printf("     /   \\ \n");
+}
+```
+#### Explanation:
+It gives a visualization to represent DEBUGMON with a simple and fun ASCII art.
+
+```c
+void write_log(const char *process_name, const char *status) {
+    FILE *log = fopen("debugmon.log", "a");
+    if (!log) return;
+
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char timestamp[50];
+    strftime(timestamp, sizeof(timestamp), "[%d:%m:%Y]-[%H:%M:%S]", t);
+
+    fprintf(log, "%s_%s_STATUS(%s)\n", timestamp, process_name, status);
+    fclose(log);
+}
+```
+#### Explanation:
+The function logs the process name and its status with a timestamp into a file. It helps track events in debugmon.log.
 
 Command: 
-
-```c 
-command line to activate the script
+```c
+./debugmon.c
 ```
 
-Output:
+## Sub Soal a
 
-![output_example](assets/temp.txt)
-
-Block of Code that is running:
-
-```c 
-block of code
+Command: 
+```c
+list <user>
 ```
 
+Code:
+```c 
+void a_processes(const char *user)
+{
+    printf("List proses untuk user '%s':\n", user);
+    printf("PID    ||\t   Command\t  || CPU || Memory\n");
+    printf("---------------------------------------------\n");
+    
+    char command[100];
+    sprintf(command, "ps -u %s -o pid,cmd,%%cpu,%%mem --no-headers", user);
+    system(command);
+}
+```
 #### Explanation:
+The function displays a list of processes running under a specific user. It uses the ps command to show PID, command name, CPU, and memory usage.
 
-```c  
-block of code
+Output: 
+
+![a]()
+
+## Sub Soal b
+
+Command: 
+```c
+daemon <user>
 ```
 
-The line above means that you need to figure out the whole thing on your own. So, good luck on whoever is trying to figure out what that line is for. For whoever that's trying to find the explanation here, you are out of luck, 'cuz this README.md is absolutely of no use for that reason.
+Code:
+```c 
+void b_start(const char *user)
+{
+    printf("\nMemulai daemon untuk memantau user '%s'...\n", user);
+    write_log("START_DAEMON", "RUNNING");
+    
+    pid_t pid = fork();
+    if (pid < 0)
+    {
+        perror("fork");
+        write_log("DAEMON_FAILED", "FAILED");
+        return;
+    }
+    
+    if (pid > 0)
+    {
+        printf("Daemon berjalan (PID: %d)\n", pid);
+        return;
+    }
+    
+    setsid();
+    
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+    
+    while (1)
+    {
+        char ps_command[100];
+        sprintf(ps_command, "ps -u %s -o cmd --no-headers", user);
+        FILE *fp = popen(ps_command, "r");
+        
+        if (fp)
+        {
+            char process_name[256];
+            while (fgets(process_name, sizeof(process_name), fp))
+            {
+                process_name[strcspn(process_name, "\n")] = '\0';
+                write_log(process_name, "RUNNING");
+            }
+            pclose(fp);
+        }
+        sleep(5);
+    }
+}
+```
+#### Explanation:
+The function starts a background daemon to monitor all running processes of a specific user. It logs each detected process every 5 seconds into the log file.
+
+Output: 
+
+![a]()
+
+## Sub Soal c
+
+Command: 
+```c
+stop <user>
+```
+
+Code:
+```c 
+void c_stop(const char *user) {
+    printf("\n>>Menghentikan pengawasan untuk user '%s'...\n", user);
+
+    char cmd[256];
+    sprintf(cmd, "pgrep -f 'debugmon daemon %s'", user);
+    
+    FILE *fp = popen(cmd, "r");
+    if (fp) {
+        char pid_str[16];
+        if (fgets(pid_str, sizeof(pid_str), fp)) {
+            pid_t pid = atoi(pid_str);
+            if (kill(pid, SIGTERM) == 0) {
+                printf("Yay! Daemon (PID: %d) berhasil dihentikan.\n", pid);
+            } else {
+                perror("Oh No! Gagal menghentikan daemon");
+            }
+        } else {
+            printf("Oh No! Tidak ada daemon yang aktif untuk user '%s'.\n", user);
+        }
+        pclose(fp);
+    }
+}
+```
+#### Explanation:
+The function stops the running daemon that monitors a specific user by finding its PID and sending a termination signal. It provides feedback based on whether the daemon was successfully stopped or not.
+
+Output: 
+
+![a]()
+
+## Sub Soal d
+
+Command: 
+```c
+fail <user>
+```
+
+Code:
+```c 
+void d_fail(const char *user) {
+    printf("\n>>Menggagalkan SEMUA proses user '%s'...\n", user);
+    write_log("FAIL_ALL_PROCESSES", "STARTED");
+
+    char ps_command[100];
+    sprintf(ps_command, "ps -u %s -o pid,cmd --no-headers", user);
+    FILE *fp = popen(ps_command, "r");
+    
+    if (fp) {
+        char line[256];
+        while (fgets(line, sizeof(line), fp)) {
+            char *cmd = strchr(line, ' ') + 1;
+            cmd[strcspn(cmd, "\n")] = '\0';
+            write_log(cmd, "FAILED");
+        }
+        pclose(fp);
+    }
+
+    char kill_command[100];
+    sprintf(kill_command, "pkill -9 -u %s", user);
+    int result = system(kill_command);
+
+    if (result == 0)
+    {
+        printf("Yay! Semua proses user '%s' berhasil digagalkan\n", user);
+        write_log("FAIL_ALL_PROCESSES", "COMPLETED");
+    } 
+    else
+    {
+        printf("Oh No! Gagal menghentikan proses user '%s'\n", user);
+        write_log("FAIL_ALL_PROCESSES", "FAILED");
+    }
+
+    sprintf(kill_command, "sudo usermod -L %s", user);
+    system(kill_command);
+    printf("Sorry! User '%s' dikunci dan tidak bisa menjalankan proses baru\n", user);
+}
+```
+#### Explanation:
+The function forcefully terminates all processes of a specific user, logs each termination, and then locks the user account. It's used to completely block a user from running any further processes.
+
+Output: 
+
+![a]()
+
+## Sub Soal e
+
+Command: 
+```c
+revert <user>
+```
+
+Code:
+```c 
+void e_revert(const char *user) {
+    printf("\n>> Memulihkan akses user '%s'...\n", user);
+    write_log("REVERT_USER", "STARTED");
+
+    char revert_command[100];
+    sprintf(revert_command, "sudo usermod -U %s", user);
+    int result = system(revert_command);
+
+    if (result == 0) {
+        printf("Yay! Akses user '%s' berhasil dipulihkan\n", user);
+        write_log("REVERT_USER", "COMPLETED");
+    } else {
+        printf("Oh No! Gagal memulihkan akses user '%s'\n", user);
+        write_log("REVERT_USER", "FAILED");
+    }
+}
+```
+#### Explanation:
+The function restores access for a previously locked user by unlocking their account. It logs the result of the operation as either completed or failed.
+
+Output: 
+
+![a]()
